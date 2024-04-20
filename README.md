@@ -6,7 +6,7 @@ JOIN AND TELL ME THE BUGS PLEASE FOR YOUR SAKE OF BOTTING BRUH
 # desparations
 request is out of date and deprecated, i knew, but i still use it. any problems?
 
-bbb
+
 # STARRRRRRR
 Hey, visitors? Consider giving me a star and helping for devs? A big W for you!
 After v3.0.1 was released, i can go to sleep now, tysm dudes helping me on the way.
