@@ -104,5 +104,6 @@
       "minDelay": 2000,
       "maxDelay": 4000
     }
-  }
+  },
+  "BotToken":""
 }

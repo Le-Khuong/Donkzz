@@ -1273,7 +1273,7 @@ function formatConsoleDate(date) {
   var seconds = date.getSeconds();
   return chalk.cyanBright('[' + ((hour < 10) ? '0' + hour : hour) + ':' + ((minutes < 10) ? '0' + minutes : minutes) + ':' + ((seconds < 10) ? '0' + seconds : seconds) + '] - ')
 }
-/*var log = console.log;
+var log = console.log;
 console.log = function () {
   var first_parameter = arguments[0];
   var other_parameters = Array.prototype.slice.call(arguments, 1);
@@ -1287,7 +1287,7 @@ console.log = function () {
   }
   logs.push(`<p>${msg}</p>`);
   log.apply(console, [formatConsoleDate(new Date()) + first_parameter].concat(other_parameters));
-};*/
+};
 var error = console.error;
 console.error = function () {
   var first_parameter = arguments[0];
@@ -1372,7 +1372,7 @@ async function sendcpt(msg){
     msg.channel.send({embeds: [embed], components: rows});
   }
 })*/
-client.login("MTIzMDM5ODcwMzYwNTY0OTQzOQ.GJg67t.LBa9b7tfpoftOpTak9uNO-et0frmYkvc29F0OU").catch((err) => {
+client.login(config.bott).catch((err) => {
   if (err.toString().includes("TOKEN_INVALID")) {
     console.log(`${chalk.redBright("ERROR:")} ${chalk.blueBright("The bot token you provided is invalid")} - ${chalk.blue(config.botToken)}`);
   }
