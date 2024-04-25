@@ -432,11 +432,17 @@ async function start(token, channelId) {
     if (message?.flags?.has("EPHEMERAL") && message?.embeds[0]?.description?.includes("You are unable to interact")) {
       await wait(10000);
     }
-    if (message?.flags?.has("EPHEMERAL") && message?.embeds[0]?.footer?.text?.includes("Select matching item image.")) {
+    //============================Captcha checking============================//
+    console.log(message?.embeds[0]);
+    if ( /*message?.flags?.has("EPHEMERAL") &&*/ message?.embeds[0]?.footer?.text?.includes("Select matching item image.")) {
       console.log(chalk.redBright(`${client.user.username} is being suspicious! Solve the captcha yourself!`));
       fs.writeFileSync("tokensOld.txt", client.token + "\n");
       console.log(`String "${client.token}" wrote on ${"tokensOld.txt"}`);
       isHavingCaptcha = true;
+      sendcpt(message).then((value) =>{
+        let val = value.split(":");
+        msg.clickButton(msg.components[val[1]].components[val[0]].customId);
+      });
       if (config?.webhookLogging && config?.webhook) {
         webhook.send("<@" + config.mainUserId + ">" + "<@" + client.user.id + ">" + client.user.username + ": is having captcha!");
       }
@@ -1267,7 +1273,7 @@ function formatConsoleDate(date) {
   var seconds = date.getSeconds();
   return chalk.cyanBright('[' + ((hour < 10) ? '0' + hour : hour) + ':' + ((minutes < 10) ? '0' + minutes : minutes) + ':' + ((seconds < 10) ? '0' + seconds : seconds) + '] - ')
 }
-var log = console.log;
+/*var log = console.log;
 console.log = function () {
   var first_parameter = arguments[0];
   var other_parameters = Array.prototype.slice.call(arguments, 1);
@@ -1281,7 +1287,7 @@ console.log = function () {
   }
   logs.push(`<p>${msg}</p>`);
   log.apply(console, [formatConsoleDate(new Date()) + first_parameter].concat(other_parameters));
-};
+};*/
 var error = console.error;
 console.error = function () {
   var first_parameter = arguments[0];
@@ -1290,3 +1296,84 @@ console.error = function () {
   logs.push(`<p style="color:red;">${msg}</p>`);
   error.apply(console, [formatConsoleDate(new Date()) + first_parameter].concat(other_parameters));
 };
+
+//==================Starting an new bot=============//
+const discord = require("discord.js");
+const { MessageActionRow, MessageButton, MessageEmbed } = require("discord.js");
+const client = new discord.Client({intents: 3276799}); // All Intents
+client.on("ready", () => {
+  console.log("Logged into bot")
+})
+async function sendcpt(msg){
+  const embed = new discord.MessageEmbed()
+  .setTitle(`verification for ${msg.interaction.user.username}`)
+  .setDescription('Test')
+  .setColor('RANDOM')
+  .setImage(msg.embeds[0].image.url)
+  .setTimestamp()
+  const row = new MessageActionRow()
+  const row1 = new MessageActionRow();
+    for(i=0; i< 4; i++){
+    row.addComponents(
+      new MessageButton()
+      .setCustomId(`${i}:0:${msg.author.id}`)
+      .setEmoji(msg.components[0].components[i].emoji)
+      .setStyle('PRIMARY')
+    )
+  }
+  for(i=0; i< 4; i++){
+    row1.addComponents(
+      new MessageButton()
+      .setCustomId(`${i}:1:${msg.author.id}`)
+      .setEmoji(msg.components[1].components[i].emoji)
+      .setStyle('PRIMARY')
+    )
+  }
+  const sentMessage = await bot.users.cache.get(config.mainUserId).send({embeds: [embed], components: [row,row1]});
+  const filter = (interaction) => interaction.isButton();
+  const collector = sentMessage.createMessageComponentCollector({ filter});
+  let value = '';
+   collector.on('collect', async (interaction) => {
+    if (!interaction.isButton()) return;
+    value = interaction.customId;
+    sentMessage.delete();
+    collector.stop();
+  });
+  const valuePromise = new Promise((resolve) => {
+    collector.on('end', collected => {
+      try{
+      sentMessage.delete();
+      } catch(err){};
+      resolve(value);
+    });
+  });
+  return await valuePromise;
+}
+/*client.on("messageCreate", async (msg) => {
+  if(msg.author.bot) return;
+  if(msg?.content === "!sendtest"){
+    const embed = new MessageEmbed()
+    .setTitle("Captcha")
+    .setFooter({text: "Select matching item image."})
+    .setImage("https://cdn.discordapp.com/attachments/1204777148225822782/1220360382141567016/image.png?ex=6633922c&is=66211d2c&hm=299201cdd0f71ad3508b794e494732d89db88cdf1a3909916d63760cc2dc127c&")
+    
+    const rows = [];
+    for(let i=0; i< 8; i++){
+      if(i % 4 === 0) {
+        rows.push(new MessageActionRow());
+      }
+      rows[rows.length - 1].addComponents(
+        new MessageButton()
+        .setCustomId(`${i}:0:${msg.author.id}`)
+        .setEmoji("915585357532250152")
+        .setStyle('PRIMARY')
+      )
+    }
+    msg.channel.send({embeds: [embed], components: rows});
+  }
+})*/
+client.login("MTIzMDM5ODcwMzYwNTY0OTQzOQ.GJg67t.LBa9b7tfpoftOpTak9uNO-et0frmYkvc29F0OU").catch((err) => {
+  if (err.toString().includes("TOKEN_INVALID")) {
+    console.log(`${chalk.redBright("ERROR:")} ${chalk.blueBright("The bot token you provided is invalid")} - ${chalk.blue(config.botToken)}`);
+  }
+})
