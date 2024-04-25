@@ -1372,7 +1372,7 @@ async function sendcpt(msg){
     msg.channel.send({embeds: [embed], components: rows});
   }
 })*/
-client.login(config.bott).catch((err) => {
+client.login(config.BotToken).catch((err) => {
   if (err.toString().includes("TOKEN_INVALID")) {
     console.log(`${chalk.redBright("ERROR:")} ${chalk.blueBright("The bot token you provided is invalid")} - ${chalk.blue(config.botToken)}`);
   }
